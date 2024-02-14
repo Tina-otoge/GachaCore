@@ -13,7 +13,7 @@ class Base(DeclarativeBase):
 class Database:
     def __init__(self, name):
         class SelfBase(Base, DeclarativeBase):
-            pass
+            db = self
 
         os.makedirs("./var", exist_ok=True)
         url = f"sqlite:///./var/{name}.db"

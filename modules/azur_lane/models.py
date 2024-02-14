@@ -3,6 +3,7 @@ import enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped as Column
 from sqlalchemy.orm import mapped_column as column
+from sqlalchemy.orm import relationship
 
 from database import Database
 
@@ -97,12 +98,21 @@ class Ship(db.Base):
     type: Column[Type]
     affiliation: Column[Affiliation]
 
+    skins = relationship("Skin", backref="ship")
+
 
 class Skin(db.Base):
     ship_id: Column[str] = column(ForeignKey("ships.id"), primary_key=True)
     name: Column[str] = column(primary_key=True)
     bg_url: Column[str]
     chibi_url: Column[str] = column(nullable=True)
+
+    variants = relationship(
+        "SkinVariant",
+        backref="skin",
+        lazy="joined",
+        primaryjoin="and_(Skin.ship_id == SkinVariant.skin_ship_id, Skin.name == SkinVariant.skin_name)",
+    )
 
 
 class SkinVariant(db.Base):
