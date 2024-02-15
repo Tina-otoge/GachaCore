@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Test</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <!-- Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script>
+
+    <style>
+        .card-image {
+            height: 400px;
+        }
+        .card-image img {
+            object-fit: contain;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <p>
+            Results: {{ items | length }}
+        </p>
+        <div class="row">
+            {% for item in items %}
+            <div class="col m12 l6 xl4">
+                <div class="card">
+                    <div class="card-image">
+                        <img src="{{ item.img_url }}">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title">{{ item.name }}</span>
+                        <p>{{ item.rarity.name }}</p>
+                        <p>
+                            {% for key, value in item.extra.items() %}
+                            {{ key }}: {{ value }}<br>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+
+</html>

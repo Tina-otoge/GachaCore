@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from common.api import Pager, TableFilter

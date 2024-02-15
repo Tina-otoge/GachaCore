@@ -12,7 +12,13 @@ def main(stop_at=-1):
     data = response.json()
     with db.create_session() as session:
         db_ids = [ship.id for ship in session.query(Ship.id).all()]
-    for ship in data.values():
+
+    def report_progress(n):
+        print("=" * 20)
+        print(f"Processed {n} / {len(db_ids)} ships")
+        print("=" * 20)
+
+    for n, ship in enumerate(data.values()):
         print(ship)
         if ship["id"] in db_ids:
             print(f"Skipping {ship['name']} already in db")
@@ -27,8 +33,9 @@ def main(stop_at=-1):
         skins = []
         for skin in soup.find_all(class_="shipskin"):
             name = skin.find(class_="shipskin-name").text
-            if "µ" in name:
-                name = "µ"
+            if "µ" in name and "µ" not in ship["name"]:
+                # name = "µ"
+                continue
             else:
                 name = name.split(":", 1)[1].strip()
 
@@ -99,9 +106,11 @@ def main(stop_at=-1):
                     session.add(variant_model)
             session.commit()
 
-        stop_at = stop_at - 1
-        if stop_at == 0:
+        if n == stop_at:
             break
+
+        if n % 10 == 0:
+            report_progress(n)
 
 
 if __name__ == "__main__":

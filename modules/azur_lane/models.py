@@ -100,6 +100,16 @@ class Ship(db.Base):
 
     skins = relationship("Skin", backref="ship")
 
+    def __repr__(self):
+        return f'<Ship "{self.name}" ({self.id})>'
+
+    @property
+    def default_skin(self):
+        for skin in self.skins:
+            if skin.name == "Default":
+                return skin
+        raise ValueError(f"No default skin found for {self}")
+
 
 class Skin(db.Base):
     ship_id: Column[str] = column(ForeignKey("ships.id"), primary_key=True)
@@ -113,6 +123,18 @@ class Skin(db.Base):
         lazy="joined",
         primaryjoin="and_(Skin.ship_id == SkinVariant.skin_ship_id, Skin.name == SkinVariant.skin_name)",
     )
+
+    def __repr__(self):
+        return f'<Skin "{self.name}" for {self.ship.name} ({self.ship_id})>'
+
+    @property
+    def default_variant(self):
+        for variant in self.variants:
+            if variant.name == "Default":
+                return variant
+            if variant.name == self.name:
+                return variant
+        raise ValueError(f"No default variant found for skin {self}")
 
 
 class SkinVariant(db.Base):
