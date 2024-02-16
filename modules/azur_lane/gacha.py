@@ -53,7 +53,10 @@ def get_gacha_rarity(rarity: Ship.Rarity):
     }[rarity]
 
 
-def get_gacha_items():
+def get_gacha_items(page=1):
+    from common.api import Pager
+
+    pager = Pager(page)
     with Ship.db.create_session() as session:
         items = [
             GachaItem(
@@ -77,6 +80,6 @@ def get_gacha_items():
                     for skin in ship.skins
                 ],
             )
-            for ship in session.query(Ship).all()
+            for ship in pager.update(session.query(Ship)).all()
         ]
     return items

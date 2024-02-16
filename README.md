@@ -12,6 +12,12 @@ Backend API that aggregate collectibles from many different sources to allow for
   - Azur Lane Wiki: https://azurlane.koumakan.jp/wiki/Azur_Lane_Wiki
   - AzurAPI: https://azurapi.github.io/
 
+## Notes
+
+- Running on Termux fails while installing pydantic-core, probably has to do
+  with building Rust from source. Use `pip install --only-binary pydantic-core
+  -r requirements.txt` to fix.
+
 ## TODO
 
 - [ ] Generic abstraction for any source
