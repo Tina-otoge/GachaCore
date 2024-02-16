@@ -11,7 +11,7 @@ class Pager:
 
     class PageInfoSchema(BaseModel):
         page: int
-        pages_count: int
+        pages: int
         count: int
         total: int
         offset: int
@@ -41,10 +41,10 @@ class Pager:
         query = self.update(query)
         items = query.all()
         return {
-            "items": items,
-            "page_info": self.PageInfoSchema(
+            "results": items,
+            "info": self.PageInfoSchema(
                 page=self.page,
-                pages_count=(total + self.results - 1) // self.results,
+                pages=(total + self.results - 1) // self.results,
                 count=len(items),
                 total=total,
                 offset=self.offset,

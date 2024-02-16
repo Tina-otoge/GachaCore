@@ -15,11 +15,11 @@ def main(stop_at=-1):
 
     def report_progress(n):
         print("=" * 20)
-        print(f"Processed {n} / {len(db_ids)} ships")
+        print(f"Processed {n} / {len(data)} ships")
         print("=" * 20)
 
     for n, ship in enumerate(data.values()):
-        print(ship)
+        print(ship["name"], ship["id"])
         if ship["id"] in db_ids:
             print(f"Skipping {ship['name']} already in db")
             continue
@@ -29,6 +29,7 @@ def main(stop_at=-1):
             )
             continue
         wiki_url = f"{WIKI_URL}/wiki/{ship['name']}/Gallery"
+        print(f"Fetching {wiki_url}")
         soup = BeautifulSoup(requests.get(wiki_url).text, "html.parser")
         skins = []
         for skin in soup.find_all(class_="shipskin"):
@@ -68,7 +69,7 @@ def main(stop_at=-1):
                     get_variant(variant.parent["data-title"], variant)
                     for variant in variants_soup
                 ]
-            print(f"{name=}, {bg=}, {chibi=}, {variants}")
+            # print(f"{name=}, {bg=}, {chibi=}, {variants}")
             skins.append(
                 {
                     "name": name,
@@ -76,6 +77,10 @@ def main(stop_at=-1):
                     "chibi": chibi,
                     "variants": variants,
                 }
+            )
+            print(
+                f"Processed skin {name} for {ship['name']} #{ship['id']}"
+                f" ({len(variants)} variants)"
             )
         ship.update({"skins": skins})
         with db.create_session() as session:

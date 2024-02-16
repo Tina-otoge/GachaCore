@@ -1,58 +1,43 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Test</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-
-    <!-- Materialize CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
-    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
-    <script src='main.js'></script>
-
-    <style>
-        .card-image {
-            height: 400px;
-        }
-        .card-image img {
-            object-fit: contain;
-            height: 100%;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container">
-        <p>
-        Results: {{ items | length }}
-        </p>
-        <div class="row">
-            {% for item in items %}
-            <div class="col m12 l6 xl4">
-                <div class="card">
-                    <div class="card-image">
-                        <img src="{{ item.img_url }}">
-                    </div>
-                    <div class="card-content">
-                        <span class="card-title">{{ item.name }}</span>
-                        <p>{{ item.rarity.name }}</p>
-                        <p>
-                            {% for key, value in item.extra.items() %}
-                            {{ key }}: {{ value }}<br>
-                            {% endfor %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+{% extends "_base.html.j2" %}
+{% block content %}
+<p>
+    Results: {{ paged.info.count }} / {{ paged.info.total }}
+</p>
+<p>
+    Page: {{ paged.info.page }} / {{ paged.info.pages }}
+</p>
+<form action="." method="get">
+    {% for field_name, field_data in filters.items() %}
+    <div class="input-field">
+        <!-- TODO: change based on field type -->
+        <input type="text" name="{{ field_name }}" id="{{ field_name }}" {% if field_data.value is not none %}
+            value="{{ field_data.value }}" {% endif %}>
+        <label for="{{ field_name }}">{{ field_name }}</label>
     </div>
+    {% endfor %}
+    <button class="btn waves-effect waves-light" type="submit">Search
+        <i class="material-icons right">search</i>
+    </button>
+</form>
+<div class="row">
+    {% for item in paged.results %}
+    <a class="col m12 l6 xl4" href="{{ url_for('detail', id=item.id) }}">
+        <div class="card">
+            <div class="card-image">
+                <img src="{{ item.thumb_url }}">
+            </div>
+            <div class="card-content">
+                <span class="card-title">{{ item.name }}</span>
+                <p>{{ item.rarity.name }}</p>
+                <p>
+                    {% for key, value in item.extra.items() %}
+                    {{ key }}: {{ value }}<br>
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
 
-</body>
-
-</html>
+{% endblock %}

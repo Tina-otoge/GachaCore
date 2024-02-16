@@ -1,0 +1,50 @@
+{% extends "_base.html.j2" %}
+
+{% block content %}
+
+<style>
+    #selected-art {
+        text-align: center;
+    }
+
+    #selected-art img {
+        max-height: 600px;
+    }
+
+    #variants-selector {
+        display: flex;
+        /* justify-content: center; */
+        gap: 2em;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #variants-selector img {
+        max-height: 300px;
+        max-width: 250px;
+    }
+</style>
+
+<h1>{{ item.name }}</h1>
+<p>{{ item.rarity }}</p>
+<code>{{ item.extra | e }}</code>
+<div id="selected-art"
+    style="background: url({{ item.bg_url }}) no-repeat; background-position: center; background-size: 70% 70%;">
+    <p id="selected-art-name">Default</p>
+    <a href="{{ item.img_url }}" target="_blank">
+        <img src="{{ item.img_url }}" alt="{{ item.name }} default skin">
+    </a>
+</div>
+<div id="variants-selector">
+    {% for variant in item.variants %}
+    <div class="variant">
+        <div>{{ variant.name }}</div>
+        <img src="{{ variant.thumb_url }}" alt="{{ item.name }} {{ variant.name }}">
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+
+</script>
+{% endblock %}

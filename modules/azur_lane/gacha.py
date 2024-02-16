@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+from common.api import TableFilter
+from modules.azur_lane.api import ShipFilters
+
 from .models import Ship
 
 
@@ -53,33 +56,43 @@ def get_gacha_rarity(rarity: Ship.Rarity):
     }[rarity]
 
 
-def get_gacha_items(page=1):
+def build_gacha_item(ship):
+    return GachaItem(
+        id=ship.id,
+        name=ship.name,
+        rarity=get_gacha_rarity(ship.rarity),
+        img_url=ship.default_skin.default_variant.img_url,
+        thumb_url=ship.default_skin.default_variant.thumb_url,
+        bg_url=ship.default_skin.bg_url,
+        extra={
+            "chibi_url": ship.default_skin.chibi_url,
+            "type": ship.type,
+            "affiliation": ship.affiliation,
+        },
+        variants=[
+            GachaVariant(
+                name=skin.name,
+                img_url=skin.default_variant.img_url,
+                thumb_url=skin.default_variant.thumb_url,
+            )
+            for skin in ship.skins
+        ],
+    )
+
+
+def get_gacha_item(id):
+    with Ship.db.create_session() as session:
+        ship = session.query(Ship).get(id)
+        if ship is None:
+            return None
+        result = build_gacha_item(ship)
+    return result
+
+
+def get_gacha_items(filters: TableFilter, page=1):
     from common.api import Pager
 
     pager = Pager(page)
-    with Ship.db.create_session() as session:
-        items = [
-            GachaItem(
-                id=ship.id,
-                name=ship.name,
-                rarity=get_gacha_rarity(ship.rarity),
-                img_url=ship.default_skin.default_variant.img_url,
-                thumb_url=ship.default_skin.default_variant.thumb_url,
-                bg_url=ship.default_skin.bg_url,
-                extra={
-                    "chibi_url": ship.default_skin.chibi_url,
-                    "type": ship.type.name,
-                    "affiliation": ship.affiliation.name,
-                },
-                variants=[
-                    GachaVariant(
-                        name=skin.name,
-                        img_url=skin.default_variant.img_url,
-                        thumb_url=skin.default_variant.thumb_url,
-                    )
-                    for skin in ship.skins
-                ],
-            )
-            for ship in pager.update(session.query(Ship)).all()
-        ]
-    return items
+    paged = pager(filters)
+    paged["results"] = [build_gacha_item(ship) for ship in paged["results"]]
+    return paged
