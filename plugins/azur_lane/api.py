@@ -4,8 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from common.api import Pager, TableFilter
-from common.errors import NotFound
+from gachacore import NotFoundError, Pager, TableFilter
 
 from .models import Ship
 
@@ -48,6 +47,9 @@ class ShipFilters(TableFilter):
     affiliation: Ship.Affiliation = None
     type: Ship.Type = None
 
+    def before(self):
+        self.query = self.query.order_by(self.model.id.asc())
+
     # TODO: Allow filtering by skin name
 
 
@@ -56,7 +58,8 @@ async def get_ships(
     filters: Annotated[ShipFilters, Depends()],
     pager: Annotated[Pager, Depends()],
 ):
-    return pager(filters)
+    filters.before()
+    return pager(filters.query)
 
 
 @router.get("/ships/{ship_id_or_name}", response_model=DetailedShipSchema)
@@ -67,6 +70,6 @@ async def get_ship(ship_id_or_name: str):
             or session.query(Ship).filter(Ship.id == ship_id_or_name).first()
         )
         if not result:
-            raise NotFound(Ship, ship_id_or_name)
+            raise NotFoundError(Ship, ship_id_or_name)
         # Needed to lazy load the relationships from within the session context
         return DetailedShipSchema.model_validate(result, from_attributes=True)

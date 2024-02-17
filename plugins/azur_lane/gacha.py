@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from common.api import TableFilter
-from modules.azur_lane.api import ShipFilters
+from gachacore import TableFilter
 
 from .models import Ship
 
@@ -90,9 +89,10 @@ def get_gacha_item(id):
 
 
 def get_gacha_items(filters: TableFilter, page=1):
-    from common.api import Pager
+    from gachacore.pager import Pager
 
     pager = Pager(page)
-    paged = pager(filters)
+    filters.before()
+    paged = pager(filters.query)
     paged["results"] = [build_gacha_item(ship) for ship in paged["results"]]
     return paged

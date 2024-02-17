@@ -3,6 +3,8 @@ import dataclasses
 import flask
 from flask import Flask
 
+from plugins.azur_lane import api
+
 webui = Flask(__name__)
 
 
@@ -19,7 +21,7 @@ def get_filters(filters):
 
 @webui.route("/")
 def index():
-    from modules.azur_lane import api, gacha
+    from plugins.azur_lane import gacha
 
     filters = api.ShipFilters
 
@@ -42,7 +44,7 @@ def index():
 
 @webui.route("/<id>")
 def detail(id):
-    from modules.azur_lane import gacha
+    from plugins.azur_lane import gacha
 
     return flask.render_template(
         "test_details.html.j2", item=gacha.get_gacha_item(id)

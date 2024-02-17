@@ -5,6 +5,25 @@ from pydantic import BaseModel
 
 @dataclass
 class Pager:
+    """
+    A pagination helper.
+
+    p = Pager(page=1, results=10, offset=2)
+    query = session.query(Table).filter(Table.field == "value")
+
+    >>> p(query)
+    {
+        "results": [Table, Table, Table],
+        "info": {
+            "page": 1,
+            "pages": 10,
+            "count": 10,
+            "total": 100,
+            "offset": 2,
+        },
+    }
+    """
+
     page: int = 1
     results: int = 100
     offset: int = 0
@@ -23,8 +42,8 @@ class Pager:
             (BaseModel,),
             {
                 "__annotations__": {
-                    "items": list[schema],
-                    "page_info": cls.PageInfoSchema,
+                    "results": list[schema],
+                    "info": cls.PageInfoSchema,
                 },
             },
         )
@@ -35,8 +54,7 @@ class Pager:
         offset += self.offset
         return query.offset(offset).limit(self.results)
 
-    def __call__(self, filters):
-        query = filters.query
+    def __call__(self, query):
         total = query.count()
         query = self.update(query)
         items = query.all()
@@ -50,21 +68,3 @@ class Pager:
                 offset=self.offset,
             ),
         }
-
-
-@dataclass
-class TableFilter:
-    def __post_init__(self):
-        with self.model.db.create_session() as session:
-            query = session.query(self.model)
-            for field in self.__dataclass_fields__:
-                value = getattr(self, field)
-                if not value:
-                    continue
-                if isinstance(value, str):
-                    query = query.filter(
-                        getattr(self.model, field).ilike(f"%{value}%")
-                    )
-                else:
-                    query = query.filter(getattr(self.model, field) == value)
-            self.query = query
