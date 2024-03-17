@@ -10,16 +10,19 @@ RAW_DATA_URL = (
 
 
 def main(stop_at=-1):
-    # response = requests.get(RAW_DATA_URL)
-    # data = response.json()
-    with open("students.json") as f:
-        data = json.load(f)
+    response = requests.get(RAW_DATA_URL)
+    data = response.json()
+    # with open("students.json") as f:
+    #     data = json.load(f)
     with db.create_session() as session:
         db_ids = [student.id for student in session.query(Student.id).all()]
     for student in data:
         with db.create_session() as session:
             if student["Id"] in db_ids:
-                print(f"Skipping {student['Name']} already in db")
+                print(
+                    f"Skipping {student['Name']} (#{student['Id']})"
+                    " already in db"
+                )
                 continue
             print(student["Name"], student["Id"])
             year = student["SchoolYear"]

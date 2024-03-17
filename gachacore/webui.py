@@ -3,7 +3,10 @@ import dataclasses
 import flask
 from flask import Flask
 
-from plugins.azur_lane import api
+from plugins.azur_lane.gacha import AzurLaneGacha
+from plugins.blue_archive.gacha import BlueArchiveGacha
+
+gachas = {x.SLUG: x for x in [AzurLaneGacha, BlueArchiveGacha]}
 
 webui = Flask(__name__)
 
@@ -19,15 +22,12 @@ def get_filters(filters):
     }
 
 
-@webui.route("/")
-def index():
-    from plugins.azur_lane import gacha
-
-    filters = api.ShipFilters
-
+@webui.route("/<gacha>/")
+def index(gacha):
+    gacha = gachas[gacha]
     page = get_page()
-    filters = get_filters(filters)
-    filters = api.ShipFilters(**filters)
+    user_filters = get_filters(gacha.SEARCH)
+    filters = gacha.SEARCH(**user_filters)
     paged = gacha.get_gacha_items(filters, page)
     return flask.render_template(
         "test.html.j2",
@@ -39,13 +39,13 @@ def index():
             }
             for field in dataclasses.fields(filters)
         },
+        gacha=gacha,
     )
 
 
-@webui.route("/<id>")
-def detail(id):
-    from plugins.azur_lane import gacha
-
+@webui.route("/<gacha>/<id>")
+def detail(gacha, id):
+    gacha = gachas[gacha]
     return flask.render_template(
         "test_details.html.j2", item=gacha.get_gacha_item(id)
     )

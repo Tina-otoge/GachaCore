@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped as Column
 from sqlalchemy.orm import mapped_column as column
 from sqlalchemy.orm import relationship
 
-from database import Database
+from gachacore.database import Database
 from gachacore.types import EnumStr
 
 db = Database("azur_lane")

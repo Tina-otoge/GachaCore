@@ -26,7 +26,9 @@
 </style>
 
 <h1>{{ item.name }}</h1>
+{% if item.rarity %}
 <p>{{ item.rarity }}</p>
+{% endif %}
 <code>{{ item.extra | e }}</code>
 <div id="selected-art"
     style="background: url({{ item.bg_url }}) no-repeat; background-position: center; background-size: 70% 70%;">
@@ -36,7 +38,7 @@
     </a>
 </div>
 <div id="variants-selector">
-    {% for variant in item.variants %}
+    {% for variant in item.variants or [] %}
     <div class="variant">
         <div>{{ variant.name }}</div>
         <img src="{{ variant.thumb_url }}" alt="{{ item.name }} {{ variant.name }}">

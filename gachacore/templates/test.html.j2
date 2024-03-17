@@ -20,15 +20,29 @@
     </button>
 </form>
 <div class="row">
+    {% set column_cls = {
+    gacha.Size.LARGE: "m12 l6 xl4",
+    gacha.Size.MEDIUM: "m6 l4 xl3",
+    gacha.Size.SMALL: "m4 l3 xl2",
+    }.get(gacha.GRID_SIZE)
+    %}
+    {% set card_height = {
+    gacha.Size.LARGE: "400px",
+    gacha.Size.MEDIUM: "300px",
+    gacha.Size.SMALL: "200px",
+    }.get(gacha.THUMB_HEIGHT)
+    %}
     {% for item in paged.results %}
-    <a class="col m12 l6 xl4" href="{{ url_for('detail', id=item.id) }}">
+    <a class="col {{ column_cls }}" href="{{ url_for('detail', gacha=gacha.SLUG, id=item.id) }}">
         <div class="card">
-            <div class="card-image">
+            <div class="card-image" style="height: {{ card_height }}">
                 <img src="{{ item.thumb_url }}">
             </div>
             <div class="card-content">
                 <span class="card-title">{{ item.name }}</span>
+                {% if item.rarity %}
                 <p>{{ item.rarity.name }}</p>
+                {% endif %}
                 <p>
                     {% for key, value in item.extra.items() %}
                     {{ key }}: {{ value }}<br>

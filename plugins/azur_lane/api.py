@@ -1,12 +1,12 @@
-from dataclasses import dataclass
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from gachacore import NotFoundError, Pager, TableFilter
+from gachacore import NotFoundError, Pager
 
 from .models import Ship
+from .search import ShipFilters
 
 router = APIRouter()
 
@@ -35,22 +35,6 @@ class ShipSchema(BaseModel):
 
 class DetailedShipSchema(ShipSchema):
     skins: list[SkinSchema]
-
-
-@dataclass
-class ShipFilters(TableFilter):
-    model = Ship
-
-    id: str = None
-    name: str = None
-    rarity: Ship.Rarity = None
-    affiliation: Ship.Affiliation = None
-    type: Ship.Type = None
-
-    def before(self):
-        self.query = self.query.order_by(self.model.id.asc())
-
-    # TODO: Allow filtering by skin name
 
 
 @router.get("/ships/", response_model=Pager.schema(ShipSchema))

@@ -1,98 +1,44 @@
-from dataclasses import dataclass
-
-from gachacore import TableFilter
+from gachacore.gacha import GachaItem, GachaRarity, GachaVariant, PluginGacha
 
 from .models import Ship
+from .search import ShipFilters
 
 
-@dataclass
-class GachaRarity:
-    name: str
-    color: str
-    bg_color: str = None
-    rate: float = 1.0
+class AzurLaneGacha(PluginGacha):
+    SLUG = "al"
+    ITEM_TYPE = Ship
+    SEARCH = ShipFilters
 
+    @classmethod
+    def build_gacha_rarity(cls, rarity: Ship.Rarity):
+        return {
+            Ship.Rarity.NORMAL: GachaRarity("Normal", "white"),
+            Ship.Rarity.RARE: GachaRarity("Rare", "blue"),
+            Ship.Rarity.ELITE: GachaRarity("Elite", "purple"),
+            Ship.Rarity.SUPER_RARE: GachaRarity("Super Rare", "gold"),
+            Ship.Rarity.ULTRA_RARE: GachaRarity("Ultra Rare", "pink"),
+        }[rarity]
 
-@dataclass
-class GachaBag:
-    name: str
-    items: list["GachaItem"]
-
-
-@dataclass
-class GachaItem:
-    id: str
-    name: str
-    rarity: GachaRarity
-    img_url: str
-    rate: float = None
-    thumb_url: str = None
-    small_url: str = None
-    bg_url: str = None
-    extra: dict[str, str] = None
-
-    variants: list["GachaVariant"] = None
-
-
-@dataclass
-class GachaVariant:
-    name: str
-    img_url: str
-    thumb_url: str
-
-
-def get_gacha_bags():
-    return [GachaBag("all", get_gacha_items())]
-
-
-def get_gacha_rarity(rarity: Ship.Rarity):
-    return {
-        Ship.Rarity.NORMAL: GachaRarity("Normal", "white"),
-        Ship.Rarity.RARE: GachaRarity("Rare", "blue"),
-        Ship.Rarity.ELITE: GachaRarity("Elite", "purple"),
-        Ship.Rarity.SUPER_RARE: GachaRarity("Super Rare", "gold"),
-        Ship.Rarity.ULTRA_RARE: GachaRarity("Ultra Rare", "pink"),
-    }[rarity]
-
-
-def build_gacha_item(ship):
-    return GachaItem(
-        id=ship.id,
-        name=ship.name,
-        rarity=get_gacha_rarity(ship.rarity),
-        img_url=ship.default_skin.default_variant.img_url,
-        thumb_url=ship.default_skin.default_variant.thumb_url,
-        bg_url=ship.default_skin.bg_url,
-        extra={
-            "chibi_url": ship.default_skin.chibi_url,
-            "type": ship.type,
-            "affiliation": ship.affiliation,
-        },
-        variants=[
-            GachaVariant(
-                name=skin.name,
-                img_url=skin.default_variant.img_url,
-                thumb_url=skin.default_variant.thumb_url,
-            )
-            for skin in ship.skins
-        ],
-    )
-
-
-def get_gacha_item(id):
-    with Ship.db.create_session() as session:
-        ship = session.query(Ship).get(id)
-        if ship is None:
-            return None
-        result = build_gacha_item(ship)
-    return result
-
-
-def get_gacha_items(filters: TableFilter, page=1):
-    from gachacore.pager import Pager
-
-    pager = Pager(page)
-    filters.before()
-    paged = pager(filters.query)
-    paged["results"] = [build_gacha_item(ship) for ship in paged["results"]]
-    return paged
+    @classmethod
+    def build_gacha_item(cls, item: Ship):
+        return GachaItem(
+            id=item.id,
+            name=item.name,
+            rarity=cls.build_gacha_rarity(item.rarity),
+            img_url=item.default_skin.default_variant.img_url,
+            thumb_url=item.default_skin.default_variant.thumb_url,
+            bg_url=item.default_skin.bg_url,
+            extra={
+                "chibi_url": item.default_skin.chibi_url,
+                "type": item.type,
+                "affiliation": item.affiliation,
+            },
+            variants=[
+                GachaVariant(
+                    name=skin.name,
+                    img_url=skin.default_variant.img_url,
+                    thumb_url=skin.default_variant.thumb_url,
+                )
+                for skin in item.skins
+            ],
+        )
