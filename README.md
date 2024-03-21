@@ -12,6 +12,13 @@ Backend API that aggregate collectibles from many different sources to allow for
   - Azur Lane Wiki: https://azurlane.koumakan.jp/wiki/Azur_Lane_Wiki
   - AzurAPI: https://azurapi.github.io/
 
+- Blue Archive
+
+  Website: https://bluearchive.nexon.com
+
+  Resources used:
+  - Schale DB: https://schale.gg
+
 ## Notes
 
 - Running on Termux fails while installing pydantic-core, probably has to do
