@@ -9,9 +9,17 @@
 <form action="." method="get">
     {% for field_name, field_data in filters.items() %}
     <div class="input-field">
-        <!-- TODO: change based on field type -->
+        {% if field_data.type | is_enum %}
+        <select multuple name="{{ field_name }}" id="{{ field_name }}">
+            <option value="" disabled selected>Choose your option</option>
+            {% for value in field_data.type %}
+            <option value="{{ value }}" {% if value == field_data.value %}selected{% endif %}>{{ value }}</option>
+            {% endfor %}
+        </select>
+        {% else %}
         <input type="text" name="{{ field_name }}" id="{{ field_name }}" {% if field_data.value is not none %}
             value="{{ field_data.value }}" {% endif %}>
+        {% endif %}
         <label for="{{ field_name }}">{{ field_name }}</label>
     </div>
     {% endfor %}

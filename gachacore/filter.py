@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 
 
 @dataclass
@@ -10,7 +11,7 @@ class TableFilter:
                 value = getattr(self, field)
                 if not value:
                     continue
-                if isinstance(value, str):
+                if isinstance(value, str) and not issubclass(type(value), Enum):
                     query = query.filter(
                         getattr(self.model, field).ilike(f"%{value}%")
                     )

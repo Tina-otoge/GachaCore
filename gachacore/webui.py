@@ -1,4 +1,5 @@
 import dataclasses
+from enum import Enum
 
 import flask
 from flask import Flask
@@ -9,6 +10,11 @@ from plugins.blue_archive.gacha import BlueArchiveGacha
 gachas = {x.SLUG: x for x in [AzurLaneGacha, BlueArchiveGacha]}
 
 webui = Flask(__name__)
+
+
+@webui.add_template_filter
+def is_enum(value):
+    return issubclass(value, Enum)
 
 
 def get_page():
